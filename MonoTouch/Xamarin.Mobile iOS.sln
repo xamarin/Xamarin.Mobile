@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.Mobile", "Xamarin.Mobile\Xamarin.Mobile.csproj", "{87C4E91E-8215-46E6-BC21-41650EEB8C92}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{F52EBD5B-7377-4856-8DBF-B85FDA42B65E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contacts Sample", "Samples\ContactsSample\Contacts Sample.csproj", "{0F36CBF1-1358-4FD3-8631-2775881B2635}"
@@ -10,6 +8,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geolocation Sample", "Samples\Geolocation\Geolocation Sample.csproj", "{B110CA48-4524-4E13-B4E1-B4A4C54EC875}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPicker Sample", "Samples\MediaPickerSample\MediaPicker Sample.csproj", "{64565954-31A4-46EE-ACB1-A362405CE6FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.Mobile.iOS", "Xamarin.Mobile\Xamarin.Mobile.iOS.csproj", "{87C4E91E-8215-46E6-BC21-41650EEB8C92}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,7 +58,7 @@ Global
 		{64565954-31A4-46EE-ACB1-A362405CE6FE} = {F52EBD5B-7377-4856-8DBF-B85FDA42B65E}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Xamarin.Mobile\Xamarin.Mobile.csproj
+		StartupItem = Xamarin.Mobile\Xamarin.Mobile.iOS.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
