@@ -94,6 +94,7 @@ namespace Xamarin.Geolocation
 
 			this.position.Accuracy = newLocation.HorizontalAccuracy;
 			this.position.Altitude = newLocation.Altitude;
+			this.position.AltitudeAccuracy = newLocation.VerticalAccuracy;
 			this.position.Latitude = newLocation.Coordinate.Latitude;
 			this.position.Longitude = newLocation.Coordinate.Longitude;
 			this.position.Speed = newLocation.Speed;
