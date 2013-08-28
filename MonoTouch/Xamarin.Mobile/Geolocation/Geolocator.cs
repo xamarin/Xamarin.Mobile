@@ -105,7 +105,7 @@ namespace Xamarin.Geolocation
 				var m = GetManager();
 
 				tcs = new TaskCompletionSource<Position> (m);
-				var singleListener = new GeolocationSingleUpdateDelegate (m, DesiredAccuracy, timeout, cancelToken);
+				var singleListener = new GeolocationSingleUpdateDelegate (m, DesiredAccuracy, includeHeading, timeout, cancelToken);
 				m.Delegate = singleListener;
 
 				m.StartUpdatingLocation ();

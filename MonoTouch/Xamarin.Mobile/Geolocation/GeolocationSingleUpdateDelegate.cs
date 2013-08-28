@@ -24,11 +24,12 @@ namespace Xamarin.Geolocation
 	internal class GeolocationSingleUpdateDelegate
 		: CLLocationManagerDelegate
 	{
-		public GeolocationSingleUpdateDelegate (CLLocationManager manager, double desiredAccuracy, int timeout, CancellationToken cancelToken)
+		public GeolocationSingleUpdateDelegate (CLLocationManager manager, double desiredAccuracy, bool includeHeading, int timeout, CancellationToken cancelToken)
 		{
 			this.manager = manager;
 			this.tcs = new TaskCompletionSource<Position> (manager);
 			this.desiredAccuracy = desiredAccuracy;
+			this.includeHeading = includeHeading;
 			
 			if (timeout != Timeout.Infinite)
 			{
@@ -100,7 +101,7 @@ namespace Xamarin.Geolocation
 
 			this.haveLocation = true;
 			
-			if (this.haveHeading && this.position.Accuracy <= this.desiredAccuracy)
+			if ((!this.includeHeading || this.haveHeading) && this.position.Accuracy <= this.desiredAccuracy)
 			{
 				this.tcs.TrySetResult (new Position (this.position));
 				StopListening();
@@ -131,6 +132,7 @@ namespace Xamarin.Geolocation
 		private CLHeading bestHeading;
 
 		private readonly double desiredAccuracy;
+		private readonly bool includeHeading;
 		private readonly TaskCompletionSource<Position> tcs;
 		private readonly CLLocationManager manager;
 		
