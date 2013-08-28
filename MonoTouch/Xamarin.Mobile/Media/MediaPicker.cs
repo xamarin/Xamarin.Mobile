@@ -216,7 +216,7 @@ namespace Xamarin.Media
 			if (od != null)
 				throw new InvalidOperationException ("Only one operation can be active at at time");
 
-			var picker = SetupController (ndelegate, sourceType, mediaType);
+			var picker = SetupController (ndelegate, sourceType, mediaType, options);
 
 			if (UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Pad) {	
 				ndelegate.Popover = new UIPopoverController (picker);
