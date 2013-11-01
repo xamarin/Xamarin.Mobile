@@ -118,7 +118,7 @@ namespace Xamarin.Media
 					else
 						this.path = Uri.Parse (b.GetString (ExtraPath));
 
-					if (this.isPhoto && !ran)
+					if (!ran)
 					{
 						Touch();
 						pickIntent.PutExtra (MediaStore.ExtraOutput, this.path);
@@ -216,6 +216,12 @@ namespace Xamarin.Media
 		
 		private static Task<bool> TryMoveFileAsync (Context context, Uri url, Uri path, bool isPhoto)
 		{
+		    if (url.Equals(path))
+		    {
+		        var tcs = new TaskCompletionSource<bool>();
+                tcs.SetResult(true);
+		        return tcs.Task;
+		    }
 			string moveTo = GetLocalPath (path);
 			return GetFileForUriAsync (context, url, isPhoto).ContinueWith (t => {
 				if (t.Result.Item1 == null)
