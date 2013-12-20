@@ -298,54 +298,56 @@ namespace Xamarin.Media
 				Task.Factory.StartNew (() =>
 				{
 					ICursor cursor = null;
-					try
-					{
-						cursor = context.ContentResolver.Query (uri, null, null, null, null);
-						if (cursor == null || !cursor.MoveToNext())
-							tcs.SetResult (new Tuple<string, bool> (null, false));
-						else
-						{
-							int column = cursor.GetColumnIndex (MediaStore.MediaColumns.Data);
-							string contentPath = null;
+                    try
+                    {
+                        string contentPath = null;
+                        try {
+                            cursor = context.ContentResolver.Query (uri, null, null, null, null);
+                        } catch (Exception) {
+                        }
+                        if (cursor != null) {
+                            int column = cursor.GetColumnIndex (MediaStore.MediaColumns.Data);
+                            if (column != -1)
+                                contentPath = cursor.GetString (column);
+                        }
 
-							if (column != -1)
-								contentPath = cursor.GetString (column);
+                        bool copied = false;
 
-							bool copied = false;
+                        // If they don't follow the "rules", try to copy the file locally
+                        if (contentPath == null || !contentPath.StartsWith ("file"))
+                        {
+                            copied = true;
 
-							// If they don't follow the "rules", try to copy the file locally
-							if (contentPath == null || !contentPath.StartsWith ("file"))
-							{
-								copied = true;
-								Uri outputPath = GetOutputMediaFile (context, "temp", null, isPhoto);
+                            string ext_name = Path.GetExtension(contentPath);
 
-								try
-								{
-									using (Stream input = context.ContentResolver.OpenInputStream (uri))
-									using (Stream output = File.Create (outputPath.Path))
-										input.CopyTo (output);
+                            Uri outputPath = GetOutputMediaFile (context, "temp", null, isPhoto, ext_name);
 
-									contentPath = outputPath.Path;
-								}
-								catch (Java.IO.FileNotFoundException)
-								{
-									// If there's no data associated with the uri, we don't know
-									// how to open this. contentPath will be null which will trigger
-									// MediaFileNotFoundException.
-								}
-							}
+                            try
+                            {
+                                using (Stream input = context.ContentResolver.OpenInputStream (uri))
+                                using (Stream output = File.Create (outputPath.Path))
+                                    input.CopyTo (output);
 
-							tcs.SetResult (new Tuple<string, bool> (contentPath, copied));
-						}
-					}
-					finally
-					{
-						if (cursor != null)
-						{
-							cursor.Close();
-							cursor.Dispose();
-						}
-					}
+                                contentPath = outputPath.Path;
+                            }
+                            catch (Exception)
+                            {
+                                // If there's no data associated with the uri, we don't know
+                                // how to open this. contentPath will be null which will trigger
+                                // MediaFileNotFoundException.
+                            }
+                        }
+
+                        tcs.SetResult (new Tuple<string, bool> (contentPath, copied));
+                    }
+                    finally
+                    {
+                        if (cursor != null)
+                        {
+                            cursor.Close();
+                            cursor.Dispose();
+                        }
+                    }
 				}, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
 			}
 			else
