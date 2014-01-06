@@ -1,5 +1,5 @@
 //
-//  Copyright 2011-2013, Xamarin Inc.
+//  Copyright 2011-2014, Xamarin Inc.
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
 //
 using System;
 
-namespace Xamarin
-{
-	public struct MotionVector
-	{
+namespace Xamarin {
+	public struct MotionVector {
 		public double X;
 		public double Y;
 		public double Z;

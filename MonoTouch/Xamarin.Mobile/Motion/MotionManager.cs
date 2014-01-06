@@ -1,5 +1,5 @@
 //
-//  Copyright 2011-2013, Xamarin Inc.
+//  Copyright 2011-2014, Xamarin Inc.
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -17,27 +17,25 @@ using System;
 using MonoTouch.CoreMotion;
 using MonoTouch.Foundation;
 
-namespace Xamarin
-{
-	public class MotionManager
-	{
-		private static CMMotionManager _motionManager = new CMMotionManager();
+namespace Xamarin {
+	public class MotionManager {
 
-		private MotionEventObservable _observable = new MotionEventObservable();
+		static CMMotionManager motionManager = new CMMotionManager ();
+		MotionEventObservable observable = new MotionEventObservable ();
+
 		public IObservable<MotionVector> MotionEvents
 		{
-			get { return this._observable; }
+			get { return this.observable; }
 		}
 
 		public MotionManager ()
 		{
 
-			_motionManager.StartAccelerometerUpdates(NSOperationQueue.CurrentQueue, (data, error) => {
+			motionManager.StartAccelerometerUpdates (NSOperationQueue.CurrentQueue, (data, error) => {
 				if (error != null) {
-					this._observable.OnError(new NSErrorException(error));
-				}
-				else {
-					this._observable.OnNext(new MotionVector() { 
+					observable.OnError (new NSErrorException (error));
+				} else {
+					observable.OnNext(new MotionVector () { 
 						X = data.Acceleration.X,
 						Y = data.Acceleration.Y,
 						Z = data.Acceleration.Z
@@ -45,8 +43,6 @@ namespace Xamarin
 				}
 			});
 		}
-
-
 	}
 }
 

@@ -1,5 +1,5 @@
 //
-//  Copyright 2011-2013, Xamarin Inc.
+//  Copyright 2011-2014, Xamarin Inc.
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -16,54 +16,57 @@
 using System;
 using System.Collections.Generic;
 
-namespace Xamarin
-{
-	internal class MotionEventObservable : IObservable<MotionVector>
-	{
-		private List<IObserver<MotionVector>> _queue = new List<IObserver<MotionVector>>();
+namespace Xamarin {
+	internal class MotionEventObservable : IObservable<MotionVector> {
+		private List<IObserver<MotionVector>> observers = new List<IObserver<MotionVector>>();
 
 		public MotionEventObservable ()
 		{
 		}
 
-
 		public IDisposable Subscribe (IObserver<MotionVector> observer)
 		{
+			observers.Add (observer);
 
-			_queue.Add (observer);
-
-			return new AnonymousDisposable (() => _queue.Remove (observer));
+			return new MotionEventDisposable (observer, observers);
 		}
 
-		public void OnNext(MotionVector value) {
+		public void OnNext(MotionVector value) 
+		{
 			Map (o => o.OnNext (value));
 		}
 
-		public void OnError(Exception ex) {
+		public void OnError(Exception ex) 
+		{
 			Map (o => o.OnError (ex));
 		}
 
-		public void OnCompleted() {
+		public void OnCompleted () 
+		{
 			Map (o => o.OnCompleted ());
 		}
 
-		private void Map(Action<IObserver<MotionVector>> value) {
-			foreach (var o in _queue) {
+		void Map(Action<IObserver<MotionVector>> value) 
+		{
+			foreach (var o in observers) {
 				value (o);
 			}
 		}
 
-		private class AnonymousDisposable : IDisposable
-		{
-			Action dispose;
-			public AnonymousDisposable(Action dispose)
+		class MotionEventDisposable : IDisposable {
+
+			IObserver<MotionVector> observer;
+			List<IObserver<MotionVector>> observerList;
+
+			public MotionEventDisposable(IObserver<MotionVector> observer, List<IObserver<MotionVector>> observerList) 
 			{
-				this.dispose = dispose;
+				this.observer = observer;
+				this.observerList = observerList;
 			}
 
-			public void Dispose()
+			public void Dispose ()
 			{
-				dispose();
+				observerList.Remove (observer);
 			}
 		}
 	}
