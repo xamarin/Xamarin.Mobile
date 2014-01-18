@@ -21,25 +21,34 @@ namespace Xamarin {
 	public class MotionManager {
 
 		static CMMotionManager motionManager = new CMMotionManager ();
-		MotionEventObservable observable = new MotionEventObservable ();
 
-		public IObservable<MotionVector> MotionEvents
-		{
-			get { return this.observable; }
-		}
+		public event EventHandler<MotionVector> OnMotion;
+		public event EventHandler<Exception> OnError;
 
 		public MotionManager ()
 		{
+		}
 
+		public void Start ()
+		{
 			motionManager.StartAccelerometerUpdates (NSOperationQueue.CurrentQueue, (data, error) => {
 				if (error != null) {
-					observable.OnError (new NSErrorException (error));
+					var ex = new NSErrorException (error);
+					var errorHandler = OnError;
+					if (errorHandler != null) {
+						errorHandler(this, ex);
+					}
 				} else {
-					observable.OnNext(new MotionVector () { 
+					var vector = new MotionVector () { 
 						X = data.Acceleration.X,
 						Y = data.Acceleration.Y,
 						Z = data.Acceleration.Z
-					});
+					};
+
+					var motionHandler = OnMotion;
+					if (motionHandler != null) {
+						motionHandler(this, vector);
+					}
 				}
 			});
 		}

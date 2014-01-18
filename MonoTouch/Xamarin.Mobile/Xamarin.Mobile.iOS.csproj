@@ -125,7 +125,6 @@
     </Compile>
     <Compile Include="Motion\MotionManager.cs" />
     <Compile Include="Motion\MotionVector.cs" />
-    <Compile Include="Motion\MotionEventObservable.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
