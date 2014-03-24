@@ -1,5 +1,5 @@
 //
-//  Copyright 2011-2013, Xamarin Inc.
+//  Copyright 2011-2014, Xamarin Inc.
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using Android.Provider;
 using Uri = Android.Net.Uri;
 
@@ -40,12 +39,14 @@ namespace Xamarin.Contacts
 
 		public TableFindResult Find (Expression expression)
 		{
-			this.queryBuilder.Clear();
-			this.arguments.Clear();
-
 			Visit (expression);
 
-			return new TableFindResult (this.table, this.queryBuilder.ToString(), this.arguments.ToArray());
+			var result = new TableFindResult (this.table, this.mimeType);
+
+			this.table = null;
+			this.mimeType = null;
+
+			return result;
 		}
 
 		public bool IsSupportedType (Type type)
@@ -86,8 +87,7 @@ namespace Xamarin.Contacts
 		}
 
 		private Uri table;
-		private readonly StringBuilder queryBuilder = new StringBuilder();
-		private readonly List<string> arguments = new List<string>();
+		private string mimeType;
 
 		private ContentResolverColumnMapping GetNoteColumn (MemberInfo member)
 		{
@@ -239,14 +239,6 @@ namespace Xamarin.Contacts
 			return member;
 		}
 
-		private void AddMimeConstraint (string type)
-		{
-			this.queryBuilder.Append (ContactsContract.DataColumns.Mimetype);
-			this.queryBuilder.Append ("=?");
-
-			this.arguments.Add (type);
-		}
-
 		private Uri GetContactTable (MemberExpression expression)
 		{
 			switch (expression.Member.Name)
@@ -259,19 +251,19 @@ namespace Xamarin.Contacts
 				case "MiddleName":
 				case "LastName":
 				case "Suffix":
-					AddMimeConstraint (ContactsContract.CommonDataKinds.StructuredName.ContentItemType);
+					this.mimeType = ContactsContract.CommonDataKinds.StructuredName.ContentItemType;
 					return ContactsContract.Data.ContentUri;
 
 				case "Relationships":
-					AddMimeConstraint (ContactsContract.CommonDataKinds.Relation.ContentItemType);
+					this.mimeType = ContactsContract.CommonDataKinds.Relation.ContentItemType;
 					return ContactsContract.Data.ContentUri;
 
 				case "Organizations":
-					AddMimeConstraint (ContactsContract.CommonDataKinds.Organization.ContentItemType);
+					this.mimeType = ContactsContract.CommonDataKinds.Organization.ContentItemType;
 					return ContactsContract.Data.ContentUri;
 
 				case "Notes":
-					AddMimeConstraint (ContactsContract.CommonDataKinds.Note.ContentItemType);
+					this.mimeType = ContactsContract.CommonDataKinds.Note.ContentItemType;
 					return ContactsContract.Data.ContentUri;
 
 				case "Phones":
@@ -282,11 +274,11 @@ namespace Xamarin.Contacts
 					return ContactsContract.CommonDataKinds.StructuredPostal.ContentUri;
 
 				case "Websites":
-					AddMimeConstraint (ContactsContract.CommonDataKinds.Website.ContentItemType);
+					this.mimeType = ContactsContract.CommonDataKinds.Website.ContentItemType;
 					return ContactsContract.Data.ContentUri;
 
 				case "InstantMessagingAccounts":
-					AddMimeConstraint (ContactsContract.CommonDataKinds.Im.ContentItemType);
+					this.mimeType = ContactsContract.CommonDataKinds.Im.ContentItemType;
 					return ContactsContract.Data.ContentUri;
 
 				default:

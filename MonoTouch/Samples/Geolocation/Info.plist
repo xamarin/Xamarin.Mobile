@@ -14,5 +14,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleDisplayName</key>
+	<string>X.M Geolocation</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.xamarin.mobile.geolocationsample</string>
+	<key>CFBundleVersion</key>
+	<string></string>
+	<key>NSMainNibFile</key>
+	<string></string>
 </dict>
 </plist>

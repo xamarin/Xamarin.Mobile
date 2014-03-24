@@ -74,7 +74,7 @@ namespace Xamarin.Media
 			if (!PhotosSupported)
 				throw new NotSupportedException();
 			
-			return TakeMedia (UIImagePickerControllerSourceType.PhotoLibrary, TypeImage);
+			return GetMediaAsync (UIImagePickerControllerSourceType.PhotoLibrary, TypeImage);
 		}
 
 		public MediaPickerController GetTakePhotoUI (StoreCameraMediaOptions options)
@@ -99,7 +99,7 @@ namespace Xamarin.Media
 			
 			VerifyCameraOptions (options);
 
-			return TakeMedia (UIImagePickerControllerSourceType.Camera, TypeImage, options);
+			return GetMediaAsync (UIImagePickerControllerSourceType.Camera, TypeImage, options);
 		}
 
 		public MediaPickerController GetPickVideoUI()
@@ -116,7 +116,7 @@ namespace Xamarin.Media
 			if (!VideosSupported)
 				throw new NotSupportedException();
 			
-			return TakeMedia (UIImagePickerControllerSourceType.PhotoLibrary, TypeMovie);
+			return GetMediaAsync (UIImagePickerControllerSourceType.PhotoLibrary, TypeMovie);
 		}
 
 		public MediaPickerController GetTakeVideoUI (StoreVideoOptions options)
@@ -141,7 +141,7 @@ namespace Xamarin.Media
 			
 			VerifyCameraOptions (options);
 
-			return TakeMedia (UIImagePickerControllerSourceType.Camera, TypeMovie, options);
+			return GetMediaAsync (UIImagePickerControllerSourceType.Camera, TypeMovie, options);
 		}
 
 		private UIPopoverController popover;
@@ -153,13 +153,8 @@ namespace Xamarin.Media
 		{
 			if (options == null)
 				throw new ArgumentNullException ("options");
-			//if (!Enum.IsDefined (typeof(MediaFileStoreLocation), options.Location))
-			//	throw new ArgumentException ("options.Location is not a member of MediaFileStoreLocation");
-			//if (options.Location == MediaFileStoreLocation.Local)
-			//{
-				if (options.Directory != null && Path.IsPathRooted (options.Directory))
-					throw new ArgumentException ("options.Directory must be a relative path", "options");
-			//}
+			if (options.Directory != null && Path.IsPathRooted (options.Directory))
+				throw new ArgumentException ("options.Directory must be a relative path", "options");
 		}
 
 		private void VerifyCameraOptions (StoreCameraMediaOptions options)
@@ -192,7 +187,7 @@ namespace Xamarin.Media
 			return picker;
 		}
 
-		private Task<MediaFile> TakeMedia (UIImagePickerControllerSourceType sourceType, string mediaType, StoreCameraMediaOptions options = null)
+		private Task<MediaFile> GetMediaAsync (UIImagePickerControllerSourceType sourceType, string mediaType, StoreCameraMediaOptions options = null)
 		{
 			UIWindow window = UIApplication.SharedApplication.KeyWindow;
 			if (window == null)
@@ -218,12 +213,12 @@ namespace Xamarin.Media
 
 			var picker = SetupController (ndelegate, sourceType, mediaType, options);
 
-			if (UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Pad) {	
+			if (UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Pad && sourceType == UIImagePickerControllerSourceType.PhotoLibrary) {	
 				ndelegate.Popover = new UIPopoverController (picker);
 				ndelegate.Popover.Delegate = new MediaPickerPopoverDelegate (ndelegate, picker);
 				ndelegate.DisplayPopover();
 			} else
-				viewController.PresentModalViewController (picker, true);
+				viewController.PresentViewController (picker, true, null);
 
 			return ndelegate.Task.ContinueWith (t => {
 				if (this.popover != null) {

@@ -16,12 +16,18 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Contacts</string>
+	<string>X.M Contacts</string>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>Resources/Default.png</string>
 		<string>Resources/Default@2x.png</string>
 		<string>Resources/Default-568h@2x.png</string>
 	</array>
+	<key>CFBundleIdentifier</key>
+	<string>com.xamarin.mobile.contactssample</string>
+	<key>CFBundleVersion</key>
+	<string></string>
+	<key>NSMainNibFile</key>
+	<string></string>
 </dict>
 </plist>

@@ -49,11 +49,10 @@ namespace Xamarin
 
 	internal class TableFindResult
 	{
-		internal TableFindResult (Uri table, string queryString, IEnumerable<string> arguments)
+		internal TableFindResult (Uri table, string mimeType)
 		{
 			Table = table;
-			QueryString = queryString;
-			Arguments = arguments;
+			MimeType = mimeType;
 		}
 
 		public Uri Table
@@ -62,13 +61,7 @@ namespace Xamarin
 			private set;
 		}
 
-		public string QueryString
-		{
-			get;
-			private set;
-		}
-
-		public IEnumerable<string> Arguments
+		public string MimeType
 		{
 			get;
 			private set;

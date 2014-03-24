@@ -39,7 +39,8 @@ namespace Xamarin
 
 		public IEnumerator<T> GetEnumerator()
 		{
-			return ((IEnumerable<T>) this.provider.Execute (this.expression)).GetEnumerator();
+			var enumerable = ((IEnumerable<T>) this.provider.Execute (this.expression));
+			return (enumerable ?? Enumerable.Empty<T>()).GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator()

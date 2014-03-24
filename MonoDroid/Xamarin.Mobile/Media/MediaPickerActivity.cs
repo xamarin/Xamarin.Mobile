@@ -113,16 +113,13 @@ namespace Xamarin.Media
 					this.quality = (VideoQuality)b.GetInt (MediaStore.ExtraVideoQuality, (int)VideoQuality.High);
 					pickIntent.PutExtra (MediaStore.ExtraVideoQuality, GetVideoQuality (this.quality));
 
-					if (!ran)
+					if (!ran) {
 						this.path = GetOutputMediaFile (this, b.GetString (ExtraPath), this.title, this.isPhoto);
-					else
-						this.path = Uri.Parse (b.GetString (ExtraPath));
 
-					if (this.isPhoto && !ran)
-					{
 						Touch();
 						pickIntent.PutExtra (MediaStore.ExtraOutput, this.path);
-					}
+					} else
+						this.path = Uri.Parse (b.GetString (ExtraPath));
 				}
 
 				if (!ran)
@@ -158,7 +155,7 @@ namespace Xamarin.Media
 
 				// Not all camera apps respect EXTRA_OUTPUT, some will instead
 				// return a content or file uri from data.
-				if (data != null) {
+				if (data != null && data.Path != originalPath) {
 					originalPath = data.ToString();
 					string currentPath = path.Path;
 					pathFuture = TryMoveFileAsync (context, data, path, isPhoto).ContinueWith (t =>
