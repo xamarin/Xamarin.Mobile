@@ -18,16 +18,22 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Threading;
 
 #if __UNIFIED__
 using CoreGraphics;
 using AssetsLibrary;
 using Foundation;
+using ImageIO;
+using MobileCoreServices;
 using UIKit;
 using NSAction = global::System.Action;
 #else
 using MonoTouch.AssetsLibrary;
 using MonoTouch.Foundation;
+using MonoTouch.ImageIO;
+using MonoTouch.MobileCoreServices;
 using MonoTouch.UIKit;
 
 using CGRect = global::System.Drawing.RectangleF;
@@ -248,19 +254,51 @@ namespace Xamarin.Media
 
 		private MediaFile GetPictureMediaFile (NSDictionary info)
 		{
-			var image = (UIImage)info[UIImagePickerController.EditedImage];
-			if (image == null)
-				image = (UIImage)info[UIImagePickerController.OriginalImage];
-
 			string path = GetOutputPath (MediaPicker.TypeImage,
-				options.Directory ?? ((IsCaptured) ? String.Empty : "temp"),
-				options.Name);
+				              options.Directory ?? ((IsCaptured) ? String.Empty : "temp"),
+				              options.Name);
 
-			using (FileStream fs = File.OpenWrite (path))
-			using (Stream s = new NSDataStream (image.AsJPEG()))
+			var image = (UIImage)info[UIImagePickerController.EditedImage];
+			NSUrl referenceUrl = (NSUrl)info[UIImagePickerController.ReferenceUrl];
+
+			// if the image is coming directly from the camera
+			if (image == null && referenceUrl == null)
 			{
-				s.CopyTo (fs);
-				fs.Flush();
+				image = (UIImage)info[UIImagePickerController.OriginalImage];
+			}
+
+			// if this is an EditedImage or direct camera image
+			if (image != null)
+			{
+				NSDictionary metadata = (NSDictionary)info[UIImagePickerController.MediaMetadata];
+				NSMutableDictionary mutableMetadata = new NSMutableDictionary(metadata);
+
+				mutableMetadata.SetValueForKey(new NSNumber(options.JpegCompressionQuality), new NSString("kCGImageDestinationLossyCompressionQuality"));
+
+				NSMutableData destData = new NSMutableData();
+				#if __UNIFIED__
+				CGImageDestination destination = CGImageDestination.Create(destData, UTType.JPEG, 1);
+				#else
+				CGImageDestination destination = CGImageDestination.FromData(destData, UTType.JPEG, 1);
+				#endif
+				destination.AddImage(image.CGImage, mutableMetadata);
+
+				destination.Close();
+				NSError saveError = null;
+				destData.Save(path, NSDataWritingOptions.Atomic, out saveError);
+
+				if (saveError != null)
+				{
+					throw new InvalidOperationException("Failed to save image: " + saveError.Description);
+				}
+			}
+			else
+			{
+				// image is coming from the camera roll
+				// use the original image file data without re-encoding it
+				// unlike the direct camera image above, this one will also
+				// include GPS EXIF data if photo was taken by the Camera app
+				SaveOriginalImage(referenceUrl, path);
 			}
 
 			Action<bool> dispose = null;
@@ -270,6 +308,66 @@ namespace Xamarin.Media
 			return new MediaFile (path, () => File.OpenRead (path), dispose);
 		}
 
+		private static string SaveOriginalImage(NSUrl referenceUrl, string path)
+		{
+			ALAssetsLibrary library = new ALAssetsLibrary();
+			var doneSignal = new ManualResetEvent(false);
+			byte[] imageData = null;
+			NSError assetError = null;
+
+			// even though AssetForUrl is async, the callbacks aren't called
+			// unless we use another thread due to blocking from our WaitOne below.
+			System.Threading.Tasks.Task.Run(() =>  {
+				library.AssetForUrl(referenceUrl, asset =>  {
+					try
+					{
+						long size = asset.DefaultRepresentation.Size;
+						imageData = new byte[size];
+						IntPtr buffer = Marshal.AllocHGlobal(imageData.Length);
+						NSError bytesError;
+
+						asset.DefaultRepresentation.GetBytes(buffer, 0, (uint)size, out bytesError);
+
+						if (bytesError != null)
+						{
+							assetError = bytesError;
+							return;
+						}
+
+						Marshal.Copy(buffer, imageData, 0, imageData.Length);
+					}
+					finally
+					{
+						asset.Dispose();
+						doneSignal.Set();
+					}
+				}, error =>  {
+					assetError = error;
+					doneSignal.Set();
+				});
+			});
+
+			if (!doneSignal.WaitOne(TimeSpan.FromSeconds(10)))
+			{
+				throw new TimeoutException("Timed out getting asset");
+			}
+
+			library.Dispose();
+
+			if (assetError != null || imageData == null)
+			{
+				throw new InvalidOperationException("Failed to get asset for URL");
+			}
+
+			using (FileStream fs = File.OpenWrite(path))
+			{
+				fs.Write(imageData, 0, imageData.Length);
+				fs.Flush();
+			}
+
+			return path;
+		}
+		
 		private MediaFile GetMovieMediaFile (NSDictionary info)
 		{
 			NSUrl url = (NSUrl)info[UIImagePickerController.MediaURL];
