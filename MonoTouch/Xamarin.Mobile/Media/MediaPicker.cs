@@ -179,7 +179,7 @@ namespace Xamarin.Media
 					StoreVideoOptions voptions = (StoreVideoOptions)options;
 					
 					picker.CameraCaptureMode = UIImagePickerControllerCameraCaptureMode.Video;
-					picker.VideoQuality = GetQuailty (voptions.Quality);
+					picker.VideoQuality = GetQuality (voptions.Quality);
 					picker.VideoMaximumDuration = voptions.DesiredLength.TotalSeconds;
 				}
 			}
@@ -243,7 +243,7 @@ namespace Xamarin.Media
 			}
 		}
 
-		private static UIImagePickerControllerQualityType GetQuailty (VideoQuality quality)
+		private static UIImagePickerControllerQualityType GetQuality (VideoQuality quality)
 		{
 			switch (quality) {
 				case VideoQuality.Low:
