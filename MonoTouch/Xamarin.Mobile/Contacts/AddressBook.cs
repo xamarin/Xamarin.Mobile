@@ -117,7 +117,104 @@ namespace Xamarin.Contacts
 			
 			return ContactHelper.GetContact (person);
 		}
-		
+
+        private NSString NSStringNotNil(string aString)
+        {
+            if (aString == null)
+                return new NSString("");
+            return new NSString(aString);
+        }
+
+        public void Save(Contact contact)
+        {
+            if (contact == null)
+                throw new ArgumentNullException("contact");
+
+            CheckStatus();
+
+            //convert the Contact to a ABPerson
+            ABPerson person = new ABPerson();
+
+            ABMutableDictionaryMultiValue addresses = new ABMutableDictionaryMultiValue();
+            foreach (var item in contact.Addresses)
+            {
+                NSMutableDictionary a = new NSMutableDictionary();
+                a.Add(new NSString(ABPersonAddressKey.City), NSStringNotNil(item.City));
+                a.Add(new NSString(ABPersonAddressKey.State), NSStringNotNil(item.Region));
+                a.Add(new NSString(ABPersonAddressKey.Zip), NSStringNotNil(item.PostalCode));
+                a.Add(new NSString(ABPersonAddressKey.Street), NSStringNotNil(item.StreetAddress));
+                addresses.Add(a, NSStringNotNil(item.Label));
+            }
+            person.SetAddresses(addresses);
+
+            //Todo contact.DisplayName missing in ABPerson?
+            //DisplayName = RelatedNames ???
+            //ABMutableStringMultiValue relatedNames = new ABMutableStringMultiValue();
+            //relatedNames.Add(ABPersonProperty.RelatedNames.ToString(), NSStringNotNil(contact.DisplayName));
+            //person.SetRelatedNames(relatedNames);
+
+            if (contact.Birthday.Year > 1)
+            {
+                person.Birthday = DateTime.SpecifyKind(contact.Birthday, DateTimeKind.Local);
+            }
+
+            ABMutableStringMultiValue emails = new ABMutableStringMultiValue();
+            foreach (var item in contact.Emails)
+            {
+                emails.Add(item.Address, NSStringNotNil(item.Label));
+            }
+            person.SetEmails(emails);
+
+            person.FirstName = contact.FirstName;
+
+            //contact.InstantMessagingAccounts missing in ABPerson?
+
+            person.LastName = contact.LastName;
+            person.MiddleName = contact.MiddleName;
+            person.Nickname = contact.Nickname;
+
+            string notes = "";
+            foreach (var item in contact.Notes)
+            {
+                notes += item.Contents + Environment.NewLine + Environment.NewLine;
+            }
+            person.Note = notes;
+
+            //Todo multiple organizations are not supportet?
+            if (contact.Organizations.Count() > 0)
+            {
+                person.Organization = contact.Organizations.FirstOrDefault().Name;
+            }
+
+            ABMutableStringMultiValue phones = new ABMutableStringMultiValue();
+            foreach (var item in contact.Phones)
+            {
+                phones.Add(item.Number, NSStringNotNil(item.Label));
+            }
+            person.SetPhones(phones);
+
+            person.Prefix = contact.Prefix;
+
+            ABMutableStringMultiValue relationships = new ABMutableStringMultiValue();
+            foreach (var item in contact.Relationships)
+            {
+                relationships.Add(item.Name, NSStringNotNil(item.Type.ToString()));
+            }
+            person.SetRelatedNames(relationships);
+
+            person.Suffix = contact.Suffix;
+
+            ABMutableStringMultiValue websites = new ABMutableStringMultiValue();
+            foreach (var item in contact.Websites)
+            {
+                websites.Add(item.Address, NSStringNotNil("Url"));
+            }
+            person.SetUrls(websites);
+
+            this.addressBook.Add(person);
+            this.addressBook.Save();
+        }
+
 		private ABAddressBook addressBook;
 		private IQueryProvider provider;
 

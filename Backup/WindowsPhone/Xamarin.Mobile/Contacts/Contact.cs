@@ -1,4 +1,4 @@
-//
+﻿//
 //  Copyright 2011-2013, Xamarin Inc.
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,35 +14,32 @@
 //    limitations under the License.
 //
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Threading.Tasks;
-using MonoTouch.AddressBook;
-using MonoTouch.CoreGraphics;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
-using System;
-using System.Runtime.InteropServices;
+using System.Windows.Media.Imaging;
 using Xamarin.Media;
 
 namespace Xamarin.Contacts
 {
 	public class Contact
 	{
+		private readonly Microsoft.Phone.UserData.Contact contact;
+
 		public Contact()
 		{
 		}
-		
-		internal Contact (ABPerson person)
+
+		internal Contact (Microsoft.Phone.UserData.Contact contact)
 		{
-			Id = person.Id.ToString();
-			this.person = person;
+			this.contact = contact;
 		}
 
 		public string Id
 		{
-			get;
-			private set;
+			get { return null; }
 		}
 
 		public bool IsAggregate
@@ -93,19 +90,6 @@ namespace Xamarin.Contacts
 			set;
 		}
 
-        public DateTime Birthday
-		{
-			get;
-			set;
-		}
-        
-		internal List<Relationship> relationships = new List<Relationship>();
-		public IEnumerable<Relationship> Relationships
-		{
-			get { return this.relationships; }
-			set { this.relationships = new List<Relationship> (value); }
-		}
-
 		internal List<Address> addresses = new List<Address>();
 		public IEnumerable<Address> Addresses
 		{
@@ -113,11 +97,11 @@ namespace Xamarin.Contacts
 			set { this.addresses = new List<Address> (value); }
 		}
 
-		internal List<InstantMessagingAccount> imAccounts = new List<InstantMessagingAccount>();
+		internal List<InstantMessagingAccount> instantMessagingAccounts = new List<InstantMessagingAccount>();
 		public IEnumerable<InstantMessagingAccount> InstantMessagingAccounts
 		{
-			get { return this.imAccounts; }
-			set { this.imAccounts = new List<InstantMessagingAccount> (value); }
+			get { return this.instantMessagingAccounts; }
+			set { this.instantMessagingAccounts = new List<InstantMessagingAccount> (value); }
 		}
 
 		internal List<Website> websites = new List<Website>();
@@ -155,19 +139,11 @@ namespace Xamarin.Contacts
 			set { this.phones = new List<Phone> (value); }
 		}
 
-		public UIImage GetThumbnail()
+		internal List<Relationship> relationships = new List<Relationship>();
+		public IEnumerable<Relationship> Relationships
 		{
-			if (!this.person.HasImage)
-				return null;
-
-			IntPtr data;
-			lock (this.person)
-				data = ABPersonCopyImageDataWithFormat (person.Handle, ABPersonImageFormat.Thumbnail);
-
-			if (data == IntPtr.Zero)
-				return null;
-
-			return new UIImage (new NSData (data));
+			get { return this.relationships; }
+			set { this.relationships = new List<Relationship> (value); }
 		}
 
 		public Task<MediaFile> SaveThumbnailAsync (string path)
@@ -175,30 +151,57 @@ namespace Xamarin.Contacts
 			if (path == null)
 				throw new ArgumentNullException ("path");
 
-			return Task<MediaFile>.Factory.StartNew (s =>
-			{
-				string p = (string) s;
+			string folder = Path.GetDirectoryName (path);
 
-				using (UIImage img = GetThumbnail())
+			return Task.Factory.StartNew (() =>
+			{
+				lock (this.contact)
 				{
-					if (img == null)
+					Stream s = this.contact.GetPicture();
+					if (s == null)
 						return null;
 
-					using (NSDataStream stream = new NSDataStream (img.AsJPEG()))
-					using (Stream fs = File.OpenWrite (p))
+					IsolatedStorageFile iso = null;
+					try
 					{
-						stream.CopyTo (fs);
-						fs.Flush();
+						iso = IsolatedStorageFile.GetUserStoreForApplication();
+						//if (!String.IsNullOrWhiteSpace (folder))
+						//    iso.CreateDirectory (folder);
+
+						//string fn = ((StoreMediaOptions) null).GetUniqueFilepath (folder, f => iso.FileExists (f));
+						using (var fs = iso.CreateFile (path))
+						{
+							s.CopyTo (fs);
+							fs.Flush (flushToDisk: true);
+						}
+
+						return new MediaFile (path, () => iso.OpenFile (path, FileMode.Open), d => iso.Dispose());
+					}
+					catch
+					{
+						if (iso != null)
+							iso.Dispose();
+
+						throw;
 					}
 				}
-
-				return new MediaFile (p, () => File.OpenRead (path));
-			}, path);
+			});
 		}
 
-		private readonly ABPerson person;
+		public BitmapImage GetThumbnail()
+		{
+			var image = new BitmapImage();
 
-		[DllImport ("/System/Library/Frameworks/AddressBook.framework/AddressBook")]
-		private static extern IntPtr ABPersonCopyImageDataWithFormat (IntPtr handle, ABPersonImageFormat format);
+			lock (this.contact)
+			{
+				Stream s = this.contact.GetPicture();
+				if (s == null)
+					return null;
+
+				image.SetSource (s);
+			}
+
+			return image;
+		}
 	}
 }

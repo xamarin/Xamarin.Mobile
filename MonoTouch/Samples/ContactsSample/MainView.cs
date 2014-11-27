@@ -33,6 +33,9 @@ namespace ContactsSample
 				}
 				else
 				{
+                    var contact = new Contact();
+                    contact.FirstName = "Rene";
+                    book.Save(contact);
 					// Contacts can be selected and sorted using LINQ!
 					//
 					// In this sample, we'll just use LINQ to sort contacts by
