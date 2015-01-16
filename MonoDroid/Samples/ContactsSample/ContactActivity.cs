@@ -66,6 +66,7 @@ namespace ContactsSample
 			var mobilePhoneTextView = FindViewById<TextView> (Resource.Id.mobile_phone);
 			mobilePhoneTextView.Text = mobilePhone;
 			
+
 		}
 	}
 }

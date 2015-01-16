@@ -25,7 +25,6 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <Optimize>true</Optimize>
     <DebugType>full</DebugType>
-    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -37,7 +36,6 @@
     <AndroidLinkMode>None</AndroidLinkMode>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
-    <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
     <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <ItemGroup>
