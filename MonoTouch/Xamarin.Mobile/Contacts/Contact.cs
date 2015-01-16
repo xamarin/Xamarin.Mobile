@@ -93,6 +93,12 @@ namespace Xamarin.Contacts
 			set;
 		}
 
+        public DateTime Birthday
+		{
+			get;
+			set;
+		}
+        
 		internal List<Relationship> relationships = new List<Relationship>();
 		public IEnumerable<Relationship> Relationships
 		{

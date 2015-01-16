@@ -35,6 +35,7 @@ namespace Xamarin.Contacts
 			if (context == null)
 				throw new ArgumentNullException ("context");
 
+
 			this.content = context.ContentResolver;
 			this.resources = context.Resources;
 			this.contactsProvider = new ContactQueryProvider (context.ContentResolver, context.Resources);
@@ -128,35 +129,147 @@ namespace Xamarin.Contacts
 			}
 		}
 
-		//public Contact SaveNew (Contact contact)
-		//{
-		//    if (contact == null)
-		//        throw new ArgumentNullException ("contact");
-		//    if (contact.Id != null)
-		//        throw new ArgumentException ("Contact is not new", "contact");
+        private Contact SaveNew(Contact contact)
+        {
+            if (contact == null)
+                throw new ArgumentNullException("contact");
+            if (contact.Id != null)
+                throw new ArgumentException("Contact is not new", "contact");
 
-		//    throw new NotImplementedException();
-		//}
+            List<ContentProviderOperation> ops = new List<ContentProviderOperation>();
 
-		//public Contact SaveExisting (Contact contact)
-		//{
-		//    if (contact == null)
-		//        throw new ArgumentNullException ("contact");
-		//    if (String.IsNullOrWhiteSpace (contact.Id))
-		//        throw new ArgumentException ("Contact is not existing");
+            ContentProviderOperation.Builder builder =
+                ContentProviderOperation.NewInsert(ContactsContract.RawContacts.ContentUri);
+            builder.WithValue(ContactsContract.RawContacts.InterfaceConsts.AccountType, null);
+            builder.WithValue(ContactsContract.RawContacts.InterfaceConsts.AccountName, null);
+            ops.Add(builder.Build());
 
-		//    throw new NotImplementedException();
+            //Name
+            builder = ContentProviderOperation.NewInsert(ContactsContract.Data.ContentUri);
+            builder.WithValueBackReference(ContactsContract.Data.InterfaceConsts.RawContactId, 0);
+            builder.WithValue(ContactsContract.Data.InterfaceConsts.Mimetype,
+                              ContactsContract.CommonDataKinds.StructuredName.ContentItemType);
+            builder.WithValue(ContactsContract.CommonDataKinds.StructuredName.FamilyName, contact.LastName);
+			builder.WithValue(ContactsContract.CommonDataKinds.StructuredName.GivenName, contact.FirstName);
+			builder.WithValue(ContactsContract.CommonDataKinds.StructuredName.MiddleName, contact.MiddleName);
+			builder.WithValue(ContactsContract.CommonDataKinds.StructuredName.DisplayName, contact.Nickname);
+			builder.WithValue(ContactsContract.CommonDataKinds.StructuredName.Prefix, contact.Prefix);
+			builder.WithValue(ContactsContract.CommonDataKinds.StructuredName.Suffix, contact.Suffix);
+            ops.Add(builder.Build());
 
-		//    return Load (contact.Id);
-		//}
+            //Addresses
+            foreach (var item in contact.Addresses)
+            {
+                builder = ContentProviderOperation.NewInsert(ContactsContract.Data.ContentUri);
+                builder.WithValueBackReference(ContactsContract.Data.InterfaceConsts.RawContactId, 0);
+                builder.WithValue(ContactsContract.Data.InterfaceConsts.Mimetype, ContactsContract.CommonDataKinds.StructuredPostal.ContentItemType);
+                builder.WithValue(ContactsContract.CommonDataKinds.StructuredPostal.Street, item.StreetAddress);
+                builder.WithValue(ContactsContract.CommonDataKinds.StructuredPostal.InterfaceConsts.Type, ContactsContract.CommonDataKinds.StructuredPostal.InterfaceConsts.TypeCustom);
+                builder.WithValue(ContactsContract.CommonDataKinds.StructuredPostal.Postcode, item.PostalCode);
+                builder.WithValue(ContactsContract.CommonDataKinds.StructuredPostal.City, item.City);
+                builder.WithValue(ContactsContract.CommonDataKinds.StructuredPostal.Country, item.Country);
+                builder.WithValue(ContactsContract.CommonDataKinds.StructuredPostal.Region, item.Region);
+                ops.Add(builder.Build());
+            }
+            
+            //Number
+            foreach (var item in contact.Phones)
+            {
+                builder = ContentProviderOperation.NewInsert(ContactsContract.Data.ContentUri);
+                builder.WithValueBackReference(ContactsContract.Data.InterfaceConsts.RawContactId, 0);
+                builder.WithValue(ContactsContract.Data.InterfaceConsts.Mimetype,
+                                  ContactsContract.CommonDataKinds.Phone.ContentItemType);
+                builder.WithValue(ContactsContract.CommonDataKinds.Phone.Number, item.Number);
+                builder.WithValue(ContactsContract.CommonDataKinds.Phone.InterfaceConsts.Type,
+                                  ContactsContract.CommonDataKinds.Phone.InterfaceConsts.TypeCustom);
+                builder.WithValue(ContactsContract.CommonDataKinds.Phone.InterfaceConsts.Label, item.Label);
+                ops.Add(builder.Build());
+            }
 
-		//public Contact Save (Contact contact)
-		//{
-		//    if (contact == null)
-		//        throw new ArgumentNullException ("contact");
+            //Email
+            foreach (var item in contact.Emails)
+            {
+                builder = ContentProviderOperation.NewInsert(ContactsContract.Data.ContentUri);
+                builder.WithValueBackReference(ContactsContract.Data.InterfaceConsts.RawContactId, 0);
+                builder.WithValue(ContactsContract.Data.InterfaceConsts.Mimetype,
+                                  ContactsContract.CommonDataKinds.Email.ContentItemType);
+                builder.WithValue(ContactsContract.CommonDataKinds.Email.InterfaceConsts.Data, item.Address);
+                builder.WithValue(ContactsContract.CommonDataKinds.Email.InterfaceConsts.Type,
+                                  ContactsContract.CommonDataKinds.Email.InterfaceConsts.TypeCustom);
+                builder.WithValue(ContactsContract.CommonDataKinds.Email.InterfaceConsts.Label, item.Label);
+                ops.Add(builder.Build());
+            }
 
-		//    return (String.IsNullOrWhiteSpace (contact.Id) ? SaveNew (contact) : SaveExisting (contact));
-		//}
+            //Website
+            foreach (var item in contact.Websites)
+            {
+                builder = ContentProviderOperation.NewInsert(ContactsContract.Data.ContentUri);
+                builder.WithValueBackReference(ContactsContract.Data.InterfaceConsts.RawContactId, 0);
+                builder.WithValue(ContactsContract.Data.InterfaceConsts.Mimetype, ContactsContract.CommonDataKinds.Website.ContentItemType);
+                builder.WithValue(ContactsContract.CommonDataKinds.Website.Url, item.Address);
+                builder.WithValue(ContactsContract.CommonDataKinds.Website.InterfaceConsts.Type, ContactsContract.CommonDataKinds.Website.InterfaceConsts.TypeCustom);
+                builder.WithValue(ContactsContract.CommonDataKinds.Website.InterfaceConsts.Label, "Homepage");
+                ops.Add(builder.Build());
+            }
+
+            ////Notes
+            //foreach (var item in contact.Notes)
+            //{
+            //    builder = ContentProviderOperation.NewInsert(ContactsContract.Data.ContentUri);
+            //    builder.WithValueBackReference(ContactsContract.Data.InterfaceConsts.RawContactId, 0);
+            //    builder.WithValue(ContactsContract.Data.InterfaceConsts.Mimetype, ContactsContract.CommonDataKinds.Note.ContentItemType);
+            //    ...
+            //    ...
+            //    ops.Add(builder.Build());
+            //}
+
+            //Company
+            foreach (var item in contact.Organizations)
+            {
+                builder = ContentProviderOperation.NewInsert(ContactsContract.Data.ContentUri);
+                builder.WithValueBackReference(ContactsContract.Data.InterfaceConsts.RawContactId, 0);
+                builder.WithValue(ContactsContract.Data.InterfaceConsts.Mimetype,
+                                  ContactsContract.CommonDataKinds.Organization.ContentItemType);
+                builder.WithValue(ContactsContract.CommonDataKinds.Organization.InterfaceConsts.Data, item.Name);
+                builder.WithValue(ContactsContract.CommonDataKinds.Organization.InterfaceConsts.Type,
+                                  ContactsContract.CommonDataKinds.Organization.InterfaceConsts.TypeCustom);
+                builder.WithValue(ContactsContract.CommonDataKinds.Organization.InterfaceConsts.Label, item.Name);
+                ops.Add(builder.Build());
+            }
+
+            //Add the new contact
+            ContentProviderResult[] res;
+            try
+            {
+                res = this.content.ApplyBatch(ContactsContract.Authority, ops);
+                //Toast.MakeText(context, context.Resources.GetString(Resource.String.contact_saved_message), ToastLength.Short).Show();
+            }
+            catch
+            {
+                //Toast.MakeText(context, context.Resources.GetString(Resource.String.contact_not_saved_message), ToastLength.Long).Show();
+            }
+            return contact;
+        }
+
+        public Contact SaveExisting(Contact contact)
+        {
+            if (contact == null)
+                throw new ArgumentNullException("contact");
+            if (String.IsNullOrWhiteSpace(contact.Id))
+                throw new ArgumentException("Contact is not existing");
+
+            throw new NotImplementedException();
+
+            return Load(contact.Id);
+        }
+
+        public Contact Save(Contact contact)
+        {
+            if (contact == null)
+                throw new ArgumentNullException("contact");
+
+            return (string.IsNullOrWhiteSpace(contact.Id) ? SaveNew(contact) : SaveExisting(contact));
+        }
 
 		//public void Delete (Contact contact)
 		//{

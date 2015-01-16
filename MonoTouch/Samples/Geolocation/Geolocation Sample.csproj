@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B110CA48-4524-4E13-B4E1-B4A4C54EC875}</ProjectGuid>
     <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -45,8 +45,10 @@
     <MtouchDebug>True</MtouchDebug>
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchArch>ARMv7</MtouchArch>
-    <MtouchI18n />
-    <IpaPackageName />
+    <MtouchI18n>
+    </MtouchI18n>
+    <IpaPackageName>
+    </IpaPackageName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -79,7 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.Mobile\Xamarin.Mobile.iOS.csproj">
-      <Project>{87c4e91e-8215-46e6-bc21-41650eeb8c92}</Project>
+      <Project>{87C4E91E-8215-46E6-BC21-41650EEB8C92}</Project>
       <Name>Xamarin.Mobile.iOS</Name>
     </ProjectReference>
   </ItemGroup>

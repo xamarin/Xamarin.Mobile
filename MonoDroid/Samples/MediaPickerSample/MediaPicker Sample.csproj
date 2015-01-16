@@ -41,7 +41,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
-    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -80,7 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.Mobile\Xamarin.Mobile.Android.csproj">
-      <Project>{32dff77e-ae38-48d6-b067-cf555798ea32}</Project>
+      <Project>{32DFF77E-AE38-48D6-B067-CF555798EA32}</Project>
       <Name>Xamarin.Mobile.Android</Name>
     </ProjectReference>
   </ItemGroup>
