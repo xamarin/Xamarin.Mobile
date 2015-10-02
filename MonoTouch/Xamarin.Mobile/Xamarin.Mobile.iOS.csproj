@@ -128,10 +128,13 @@
     <Compile Include="..\..\MonoDroid\Xamarin.Mobile\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Motion\MotionManager.cs" />
+    <Compile Include="Motion\MotionVector.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <Folder Include="Media\" />
     <Folder Include="Properties\" />
+    <Folder Include="Motion\" />
   </ItemGroup>
 </Project>
