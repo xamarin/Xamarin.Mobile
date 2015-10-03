@@ -46,7 +46,20 @@ namespace Xamarin.Media
 	public class StoreCameraMediaOptions
 		: StoreMediaOptions
 	{
+		public StoreCameraMediaOptions()
+		{
+			// 0.90 produces an image quality of 96 according to ImageMagick's identify -verbose
+			// which is equivalent to the default compression quality used by the Camera app
+			JpegCompressionQuality = 0.90f;
+		}
+
 		public CameraDevice DefaultCamera
+		{
+			get;
+			set;
+		}
+
+		public float JpegCompressionQuality
 		{
 			get;
 			set;
