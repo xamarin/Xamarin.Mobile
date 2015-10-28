@@ -1,6 +1,7 @@
 #addin "Cake.Xamarin"
 
 var TARGET = Argument ("t", Argument ("target", Argument ("Target", "Default")));
+var PLATFORMPROJECTS = Argument ("platformprojects", Argument ("PlatformProjects", "Platform"));
 
 Task ("libs").Does (() => 
 {
@@ -17,6 +18,24 @@ Task ("libs").Does (() =>
 
 		MSBuild ("./WindowsRT/Xamarin.Mobile/Xamarin.Mobile.csproj", c => c.SetConfiguration("Release").SetPlatformTarget(PlatformTarget.x86));
 		CopyFiles ("./WindowsRT/Xamarin.Mobile/bin/**/Release/*.dll", "./output/winrt");
+        
+        if (PLATFORMPROJECTS == "Everything") {
+            
+            CreateDirectory ("./output/android/");
+            CreateDirectory ("./output/ios-unified/");
+            CreateDirectory ("./output/ios/");
+
+            NuGetRestore ("./Xamarin.Mobile.Mac.sln");
+
+            MSBuild ("./MonoDroid/Xamarin.Mobile/Xamarin.Mobile.Android.csproj", c => c.SetConfiguration("Release"));
+            CopyFiles ("./MonoDroid/Xamarin.Mobile/bin/Release/*.dll", "./output/android");
+
+            MSBuild ("./MonoTouch/Xamarin.Mobile/Xamarin.Mobile.iOS.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+            CopyFiles ("./MonoTouch/Xamarin.Mobile/bin/unified/iPhone/Release/*.dll", "./output/ios-unified");
+
+            MSBuild ("./MonoTouch/Xamarin.Mobile/Xamarin.Mobile.iOS-Classic.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+            CopyFiles ("./MonoTouch/Xamarin.Mobile/bin/classic/iPhone/Release/*.dll", "./output/ios");
+        }
 
 	} else {
 
