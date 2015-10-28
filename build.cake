@@ -67,6 +67,21 @@ Task ("samples").IsDependentOn ("libs").Does (() =>
 
 		MSBuild ("./WindowsRT/Samples/GeolocationSample/GeolocationSample.csproj", c => c.SetConfiguration("Release").SetPlatformTarget(PlatformTarget.x86));
 		MSBuild ("./WindowsRT/Samples/MediaPickerSample/MediaPickerSample.csproj", c => c.SetConfiguration("Release").SetPlatformTarget(PlatformTarget.x86));
+        
+        if (PLATFORMPROJECTS == "Everything") {
+            
+            MSBuild ("./MonoDroid/Samples/ContactsSample/Contacts Sample.csproj", c => c.SetConfiguration("Release"));
+            MSBuild ("./MonoDroid/Samples/GeolocationSample/Geolocation Sample.csproj", c => c.SetConfiguration("Release"));
+            MSBuild ("./MonoDroid/Samples/MediaPickerSample/MediaPicker Sample.csproj", c => c.SetConfiguration("Release"));
+
+            MSBuild ("./MonoTouch/Samples/ContactsSample/Contacts Sample.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+            MSBuild ("./MonoTouch/Samples/Geolocation/Geolocation Sample.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+            MSBuild ("./MonoTouch/Samples/MediaPickerSample/MediaPicker Sample.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+
+            MSBuild ("./MonoTouch/Samples/ContactsSample-Classic/Contacts Sample-Classic.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+            MSBuild ("./MonoTouch/Samples/Geolocation-Classic/Geolocation Sample-Classic.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+            MSBuild ("./MonoTouch/Samples/MediaPickerSample-Classic/MediaPicker Sample-Classic.csproj", c => c.SetConfiguration("Release").WithProperty("Platform", "iPhone"));
+        }
 	} else {		
 		DotNetBuild ("./MonoDroid/Samples/ContactsSample/Contacts Sample.csproj", c => c.Configuration = "Release");
 		DotNetBuild ("./MonoDroid/Samples/GeolocationSample/Geolocation Sample.csproj", c => c.Configuration = "Release");
