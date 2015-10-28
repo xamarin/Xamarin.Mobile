@@ -6,7 +6,9 @@ Param(
     [string]$Verbosity = "Verbose",
     [switch]$Experimental,
     [Alias("DryRun","Noop")]
-    [switch]$WhatIf
+    [switch]$WhatIf,
+    [ValidateSet("Platform", "Everything")]
+    [string]$PlatformProjects = "Platform"
 )
 
 $TOOLS_DIR = Join-Path $PSScriptRoot "tools"
@@ -70,5 +72,5 @@ if (!(Test-Path $CAKE_EXE)) {
 }
 
 # Start Cake
-Invoke-Expression "$CAKE_EXE `"$Script`" -target=`"$Target`" -configuration=`"$Configuration`" -verbosity=`"$Verbosity`" $UseDryRun $UseExperimental"
+Invoke-Expression "$CAKE_EXE `"$Script`" -target=`"$Target`" -configuration=`"$Configuration`" -verbosity=`"$Verbosity`" -platformprojects=`"$PlatformProjects`" $UseDryRun $UseExperimental"
 exit $LASTEXITCODE
