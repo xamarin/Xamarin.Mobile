@@ -20,6 +20,18 @@ libraries:
     - ./output/wp8/Xamarin.Mobile.dll
   winrt:
     - ./output/winrt/Xamarin.Mobile.dll
+is_shell: true
+packages:
+  ios:
+    - xamarin.mobile, Version=0.7.7
+  ios-unified:
+    - xamarin.mobile, Version=0.7.7
+  android:
+    - xamarin.mobile, Version=0.7.7
+  wp8:
+    - xamarin.mobile, Version=0.7.7
+  winrt:
+    - xamarin.mobile, Version=0.7.7
 samples:
   - name: "Android Samples"
     path: MonoDroid/Samples/Xamarin.Mobile.Android.Samples.sln

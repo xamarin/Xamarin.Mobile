@@ -17,7 +17,7 @@ Task ("libs").Does (() =>
 
 		MSBuild ("./WindowsRT/Xamarin.Mobile/Xamarin.Mobile.csproj", c => c.SetConfiguration("Release").SetPlatformTarget(PlatformTarget.x86));
 		CopyFiles ("./WindowsRT/Xamarin.Mobile/bin/**/Release/*.dll", "./output/winrt");
-
+        
 	} else {
 
 		CreateDirectory ("./output/");
@@ -63,7 +63,21 @@ Task ("samples").IsDependentOn ("libs").Does (() =>
 	}
 });
 
-Task ("component").IsDependentOn ("samples").Does (() =>
+Task ("nuget").IsDependentOn ("samples").Does (() =>
+{
+	if (!FileExists ("./tools/nuget.exe")) {
+		DownloadFile ("http://nuget.org/nuget.exe", "./tools/nuget.exe");
+	}
+
+	StartProcess (MakeAbsolute (new FilePath ("./tools/nuget.exe")), new ProcessSettings {
+		Arguments = "pack Xamarin.Mobile.nuspec"
+	});
+
+	DeleteFiles ("./output/*.nupkg");
+	MoveFiles ("./*.nupkg", "./output/");
+});
+
+Task ("component").IsDependentOn ("nuget").Does (() =>
 {
 	if (!FileExists ("./tools/xamarin-component.exe")) {
 		DownloadFile ("https://components.xamarin.com/submit/xpkg", "./tools/xpkg.zip");
