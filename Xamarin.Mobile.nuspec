@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>xamarin.mobile</id>
+        <version>0.7.7</version>
+        <title>Xamarin.Mobile</title>
+        <authors>Xamarin Inc.</authors>
+        <licenseUrl>http://components.xamarin.com/license/xamarin.mobile</licenseUrl>
+        <projectUrl>http://components.xamarin.com/view/xamarin.mobile</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/xamarin/Xamarin.Mobile/master/component/xamarin.mobile_512x512.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Xamarin.Mobile is a library that exposes a single set of APIs for accessing common mobile device functionality across iOS, Android and Windows platforms.</description>
+        <summary>Xamarin.Mobile is a library that exposes a single set of APIs for accessing common mobile device functionality across iOS, Android and Windows platforms.</summary>
+        <releaseNotes></releaseNotes>
+        <copyright>Xamarin Inc.</copyright>
+        <tags>Mobile,Contacts,Geolocation,Media,Xamarin,Android,iOS,windows phone,wp8,monodroid,monoandroid,monotouch</tags>
+        <dependencies>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="output/winrt/Xamarin.Mobile.dll" target="lib\win8\Xamarin.Mobile.dll" />
+        <file src="output/wp8/Xamarin.Mobile.dll" target="lib\wp8\Xamarin.Mobile.dll" />
+        
+        <file src="output/android/Xamarin.Mobile.dll" target="lib\MonoAndroid\Xamarin.Mobile.dll" />
+        <file src="output/ios-unified/Xamarin.Mobile.dll" target="lib\XamariniOS\Xamarin.Mobile.dll" />
+        <file src="output/ios/Xamarin.Mobile.dll" target="lib\MonoTouch\Xamarin.Mobile.dll" />
+    </files>
+</package>
